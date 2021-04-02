@@ -14,7 +14,7 @@ npm i very-simple-scraper
 const scraper = require('very-simple-scraper').scraper;
 const domains = require("./domains");
 
-const formProxyUrl = (urlToScrape, apiKey) => 
+const formProxyUrl = (urlToScrape, apiKey) =>
   `https://someproxyservice/?key=${apiKey}&url=${urlToScrape}`;
 
 scraper(domains, formProxyUrl)
@@ -22,7 +22,7 @@ scraper(domains, formProxyUrl)
 
 ## Inputs
 
-The input csv file requires that you have a `domain`, `kind`, and `id` header. 
+The input csv file requires that you have a `domain`, `kind`, and `id` header.
 
 > Make sure the csv file has the headers present as the first line of the file
 
@@ -43,7 +43,6 @@ When you generate parse session output, you will often see a `inputs.csv` file i
 
 Data is scraped from a domain and saved in a local html cache folder. Data in this folder can than be parsed with the other command.
 
-
 ### Args
 
 You must specify: `token` and `input` command line arguments.
@@ -54,11 +53,8 @@ You must specify: `token` and `input` command line arguments.
 You may specify: `from`, `to`, `filter`, and `parallelize` command line argument.
 
 - `from` : start at the `from` row number in the input CSV. Ex: `--from=10`
-  
 - `to` : end at the `to` row number in the input CSV. Ex: `--to=90`
-  
 - `filter`: Filter by a domain kind's context. Ex: `--filter="wiki link"`. Filters can use the union operator. For example: `--filter="wiki link|reference link"`
-  
 - `parallelize`: run the scraper in Tmux in N parallel sessions. Each session is a window named after the chunk it is processing. Ex: `--parallelize=3` will run 3 sessions. If there are 9 rows, the windows will be named `0-2`, `3-5`, and `6-8`.
 
 ### Example
@@ -79,9 +75,7 @@ You must specify: `input` and `output` command line arguments.
 You may specify: `from`, `to` and `filter` command line argument.
 
 - `from` : start at the `from` row number in the input CSV. Ex: `--from=10`
-  
 - `to` : end at the `to` row number in the input CSV. Ex: `--to=90`
-  
 - `filter`: Filter by a domain kind's context. Ex: `--filter="wiki link"`. Filters can use the union operator. For example: `--filter="wiki link|reference link"`
 
 ### Examples
@@ -105,7 +99,7 @@ node run.js scrape --token=TKM0D87U1XR98JD0F74RMULE7GMLYDVY2O --input=input.csv 
 ```
 
 #### Scrape everything in the input csv across 10 sessions in parallel
- 
+
 ```sh
 node run.js scrape --token=TKM0D87U1XR98JD0F74RMULE7GMLYDVY2O --input=input.csv --parallelize=10
 ```
