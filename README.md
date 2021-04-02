@@ -2,15 +2,21 @@
 
 ## Overview
 
-This repo contains a scraper and parser that both work on a specified `input` csv file. First you `scrape` the rows in the file. Then you `parse` the scraped response associated with each row. The `parse` command generates a parse session folder. In this folder you will find files associated with extracted data, missing data, and new inputs.
+This library exposes a scraper function that can be used to quickly build scrapers. 
 
-## Initial setup
+Typical usage looks like:
+
+### 1. Install the scraper as a dependency in your scraper project
 
 ```
 npm i very-simple-scraper
 ```
 
+### 2. Call the `scraper` function exposed by the library.
+
 ```
+// run.js
+
 const scraper = require('very-simple-scraper').scraper;
 const domains = require("./domains");
 
@@ -19,6 +25,77 @@ const formProxyUrl = (urlToScrape, apiKey) =>
 
 scraper(domains, formProxyUrl)
 ```
+
+#### The `scraper` function has the signature: 
+   
+```
+   (
+     domains: DomainObj, 
+     formProxyUrl?: (urlToScrape: string, apiKey?: string) => url
+   ) => null
+```
+
+#### The `DomainObj` looks like:
+
+```
+  { domainName: {
+      kindName: {
+          csvShape: [{ id: string, title: string }],
+          formScrapeUrlFromId: (id) => string,
+          parseData: (data: ResponseFromScrape) => ({ 
+              payload: ObjectMatchingCsvShape, 
+              links: [LinkObj] 
+          }) | null
+      }
+  }}
+
+```
+
+> The purpose of the `DomainObj` is to define how each `domain` and domain `kind` is scraped and parsed.
+
+
+
+### 3. Call the above `run.js` file with the `scrape` arg
+
+> The scrape arg fetches the response objects associated with each constructed URL from the `input` file. These response objects are stored locally in the `./scraped/response_cache` folder.
+
+```
+node run.js scrape --token=TKM0D87U1XR98JD0F74RMULE7GMLYDVY2O --input=./input.csv --from=20 --to=100 --parallelize=10
+```
+
+### 4. Call the above `run.js` file with the `parse` arg
+
+> The parse arg parses the response objects associated with each constructed URL from the `input` file. Objects are only parsed if they exist in the `./scraped/response_cache` folder. The parsed output is stored in `./scraped/output/<session name>`
+
+```
+node run.js parse --input=input.csv --session=wiki_data_apr_1 --from=20 --to=100 
+```
+
+## Paradigm
+
+This scraper separates out the `storage of responses` from the `parsing of responses`. Thus, using this scraper is a two step operation. First you `scrape` and then you `parse`:
+
+```
+node run.js scrape --token=TKM0D87U1XR98JD0F74RMULE7GMLYDVY2O --input=./input.csv
+node run.js parse --session=mysession --input=./input.csv
+```
+
+When you run `parse` the output is another folder located at `./scraped/output/<session name>`. Inside this folder are files associated with `extracted data`, `missing data`, and `new inputs`.
+
+The `new inputs` from a parse session can be used as inputs in a new scrape:
+
+```
+// run the first scrape & parse session
+node run.js scrape --token=TKM0D87U1XR98JD0F74RMULE7GMLYDVY2O --input=./input.csv
+node run.js parse --session=my_first_session --input=./input.csv
+
+// use the parsed output's input in a new scrape & parse session
+node run.js scrape --token=TKM0D87U1XR98JD0F74RMULE7GMLYDVY2O --input=./scraped/output/my_first_session/input.csv
+node run.js parse --session=my_second_session --input=./scraped/output/my_first_session/input.csv
+```
+
+This pattern allows you to chain together scrape sessions in very specific ways.
+
 
 ## Inputs
 
@@ -86,7 +163,7 @@ You may specify: `from`, `to` and `filter` command line argument.
 node run.js parse --input=input.csv --session=wiki_data_apr_1 --to=500
 ```
 
-#### Parse the first 10 rows and filter for rows that have the context `tag media`
+#### Parse the first 10 rows and filter for rows that have the context `reference link`
 
 ```sh
 node run.js parse --input=scraped/output/out2/inputs.csv --session=out3 --to=10 --filter="reference link"
