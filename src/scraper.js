@@ -82,7 +82,9 @@ exports.fetchUrlFromProxyAndCache = (
       const url = domainMistero.formScrapeUrlFromId(id);
       console.log("Url to scrape: ", url);
       if (apiKey == null || apiKey.length === 0) {
-        throw new Error('Missing proxy token. Supply one with the `token` option. For example:`node run.js scrape --token=A92QJCSDML13ZN7YB06N31MCL54W9USEL6O096TNM66M`')
+        throw new Error(
+          "Missing proxy token. Supply one with the `token` option. For example:`node run.js scrape --token=A92QJCSDML13ZN7YB06N31MCL54W9USEL6O096TNM66M`"
+        );
       }
       const proxyUrl = formProxyUrl(url, apiKey);
 

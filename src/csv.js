@@ -20,14 +20,21 @@ exports.extractRowsFromCSV = (fileLocation, onFinish, filter = []) => {
       originId = row["originId"];
       context = row["context"];
       row = { domain, kind, id, originDomain, originKind, originId, context };
-      if (domain == null || kind == null || id == null || domain === '' || kind === '' || id === '') {
+      if (
+        domain == null ||
+        kind == null ||
+        id == null ||
+        domain === "" ||
+        kind === "" ||
+        id === ""
+      ) {
         throw new Error(`Missing domain, kind, or id: ${JSON.stringify(row)}`);
       }
 
       if (filter.length > 0) {
         // console.log(filter.includes(row.context), row.context, filter)
-        if (filter.includes(row.context)){
-          rows.push(row)
+        if (filter.includes(row.context)) {
+          rows.push(row);
         }
       } else {
         rows.push(row);

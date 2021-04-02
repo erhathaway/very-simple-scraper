@@ -27,38 +27,36 @@ const vsscraper = (domains, formProxyUrl = (u) => u) => {
     csv.extractRowsFromCSV(
       inputFileName,
       (rows) => {
-
         if (to === -1) {
           rows = rows.slice(from);
         } else {
           rows = rows.slice(from, to + 1);
         }
-        
 
         if (parallelizeCount) {
-          console.log('parallelizing')
+          console.log("parallelizing");
           const chunkSize = Math.ceil(rows.length / parallelizeCount);
 
           const scrapeCommandIndex = process.argv.indexOf("scrape");
           const options = process.argv.slice(scrapeCommandIndex + 1);
-          const filteredOptions = options.filter((o) => {
-            optionName = o.split("=")[0];
-            return (
-              optionName !== "--from" &&
-              optionName !== "--to" &&
-              optionName !== "--parallelize"
-            );
-          }).map(o => {
-            optionName = o.split("=")[0];
-            optionValue = o.split("=")[1];
-            const hasWords = optionValue.split(' ').length > 1
-            if (hasWords)
-              return `${optionName}="${optionValue}"`
-            else {
-              return `${optionName}=${optionValue}`
-            }
-          });
-
+          const filteredOptions = options
+            .filter((o) => {
+              optionName = o.split("=")[0];
+              return (
+                optionName !== "--from" &&
+                optionName !== "--to" &&
+                optionName !== "--parallelize"
+              );
+            })
+            .map((o) => {
+              optionName = o.split("=")[0];
+              optionValue = o.split("=")[1];
+              const hasWords = optionValue.split(" ").length > 1;
+              if (hasWords) return `${optionName}="${optionValue}"`;
+              else {
+                return `${optionName}=${optionValue}`;
+              }
+            });
 
           spawnSync("tmux", ["kill-session", "-t", "scraper"]);
           spawnSync("tmux", ["new-session", "-d", "-s", "scraper"]);
@@ -96,9 +94,10 @@ const vsscraper = (domains, formProxyUrl = (u) => u) => {
               command,
               "Enter",
             ]);
-
           }
-          console.log('\n\nTo attach to the session enter: \n\ntmux attach-session -t scraper\n\n\n')
+          console.log(
+            "\n\nTo attach to the session enter: \n\ntmux attach-session -t scraper\n\n\n"
+          );
         } else {
           const rowsToScrape = rows.map((row) => {
             if (row == null) {
@@ -140,14 +139,13 @@ const vsscraper = (domains, formProxyUrl = (u) => u) => {
     csv.extractRowsFromCSV(
       inputFileName,
       (rows) => {
-
         if (to === -1) {
           rows = rows.slice(from);
         } else {
           rows = rows.slice(from, to + 1);
         }
 
-        console.log(`Found ${rows.length} rows to parse`)
+        console.log(`Found ${rows.length} rows to parse`);
         const outputData = rows.reduce(
           (acc, row) => {
             if (row == null) {
@@ -195,7 +193,9 @@ const vsscraper = (domains, formProxyUrl = (u) => u) => {
         );
 
         if (outputSessionName == null) {
-          throw new Error('Missing output session name. Set it using the `--session` option')
+          throw new Error(
+            "Missing output session name. Set it using the `--session` option"
+          );
         }
         const outputFolder = path.join("scraped", "output", outputSessionName);
 
@@ -272,4 +272,4 @@ const vsscraper = (domains, formProxyUrl = (u) => u) => {
   }
 };
 
-exports.scraper = vsscraper
+exports.scraper = vsscraper;
