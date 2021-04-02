@@ -1,0 +1,63 @@
+defaults: &defaults
+    working_directory: ~/code
+
+save-cache: &save-cache
+    save_cache:
+        paths:
+            - node_modules
+        key: v1-dependencies-{{ checksum "package.json" }}
+
+restore-cache: &restore-cache
+    restore_cache:
+        keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+npm-config: &npm-config
+    run:
+        name: Authenticate with registry
+        command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+
+version: 2.1
+jobs:
+    beauty-check:
+        <<: *defaults
+        docker:
+            - image: circleci/node:10.16.3-stretch
+        steps:
+            - *npm-config
+            - checkout
+            - *restore-cache
+            - run: npm install
+            - *save-cache
+            - run: npm run prettier -- --check
+
+    publish-github-release-to-npm:
+        <<: *defaults
+        docker:
+            - image: circleci/node:10.16.3-stretch
+        steps:
+            - *npm-config
+            - checkout
+            - *restore-cache
+            - run: npm install
+            - run:
+                  name: Publish package
+                  command: npm publish
+
+workflows:
+    version: 2
+    integration:
+        jobs:
+            - beauty-check:
+                  filters:
+                      tags: # run for every branch
+                          only: /^[0-9]+(\.[0-9]+)*$/
+    publish:
+        jobs:
+            - publish-github-release-to-npm:
+                  filters:
+                      branches:
+                          ignore: /.*/
+                      tags:
+                          only: /^v{0,1}\d+\.\d+\.\d+$/
